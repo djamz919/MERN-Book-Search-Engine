@@ -17,6 +17,36 @@ const resolvers = {
         },
     },
     Mutation: {
-        
+        login: async (parent, { body }) => {
+            const user = await User.findOne({ $or: [{ username: body.username }, { email: body.email }] });
+
+            if (!user) {
+                throw new AuthenticationError('Incorrect credentials');
+            }
+
+            const correctPw = await user.isCorrectPassword(body.password);
+
+            if (!correctPw) {
+                throw new AuthenticationError('Incorrect credentials');
+            }
+
+            const token = signToken(user);
+            return { token, user };
+        },
+        addUser: async (parent, args) => {
+            const user = await User.create(args);
+            const token = signToken(user);
+
+            return { token, user };
+        },
+        saveBook: async (parent, args, context) => {
+            if (context.user) {
+            }
+        },
+        removeBook: async (parent, args, context) => {
+            if (context.user) {
+
+            }
+        }
     }
 }
